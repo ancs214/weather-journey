@@ -2,7 +2,9 @@ let userFormEl = document.querySelector("#user-form");
 let stateEl = document.querySelector("#state");
 let cityInput = document.querySelector("#cityInput");
 let weatherSectionEl = document.querySelector("#weather-section");
-
+let cityHeaderEl = document.querySelector("#city-header");
+let futureWeatherEl = document.querySelector("#future-weather");
+let futureDataEl = document.querySelector("#future-data");
 
 
 
@@ -41,7 +43,7 @@ let getStates = function (searchEntry) {
 
 //function to create buttons for each state name resulted
 let displayStates = function (data) {
-    console.log(data);
+    // console.log(data);
     for (let i = 0; i < data.length; i++) {
         //create a link element
         let stateLinkEl = document.createElement("a");
@@ -51,6 +53,7 @@ let displayStates = function (data) {
         let stateBtn = document.createElement("button");
         //put state text into btn element
         stateBtn.textContent = data[i].state;
+        stateBtn.setAttribute("class", "btn btn-info")
         //append link to btn
         stateBtn.appendChild(stateLinkEl);
         //append btn to page
@@ -62,8 +65,7 @@ let displayStates = function (data) {
             let location = city + ", " + state;
             //city, state saved to local storage
             localStorage.setItem("location", location);
-            //header to display city, state
-            weatherSectionEl.innerHTML = location;
+            //set var for lat / long data
             let lat = data[i].lat;
             let lon = data[i].lon
             //plug in lat / long to getCurrentWeather function
@@ -83,6 +85,7 @@ let getCurrentWeather = function (lat, lon) {
                     .then(function (data) {
                         //pass data to displayCurrentWeather function
                         displayCurrentWeather(data);
+                        displayFutureWeather(data);
                     })
             } else {
                 alert("There was a problem with your request!");
@@ -91,17 +94,53 @@ let getCurrentWeather = function (lat, lon) {
 };
 
 
+//display current weather conditions
 let displayCurrentWeather = function(data) {
-    console.log(data);
     let dataArr = [data.current.temp, data.current.wind_speed, data.current.humidity, data.current.uvi];
-    console.log(dataArr);
+    //get city,state from local storage and make header
+    let cityState = localStorage.getItem("location").toString();
+    cityHeaderEl.innerHTML = cityState + "&nbsp" + moment().format("(MM/DD/YY)");
     //create container for current conditions
     let currentConditions = document.createElement("div");
     //assign data to innerHTML
     currentConditions.innerHTML = "Temp: " + dataArr[0] + "°F <br />" + "Wind: " + dataArr[1] + " MPH <br />" + "Humidity: " + dataArr[2] + "% <br />" + "UV Index: " + dataArr[3];
-    console.log(currentConditions);
+    //assign bootstrap class to weather section
+    weatherSectionEl.setAttribute("class", "border border-dark conditions");
     //append to page
     weatherSectionEl.appendChild(currentConditions);
 }
+
+
+//display 5 day weather forecast
+let displayFutureWeather = function(data) {
+    let data5days = data.daily;
+   
+    for (let i=0; i<data5days.length-2; i++){
+        //create div w class col
+        let colDiv = document.createElement("div");
+        colDiv.setAttribute("class", "col");
+        //create card div w class card        
+        let cardDiv = document.createElement("div");
+        cardDiv.setAttribute("class", "card bg-dark");
+        //create cardTitle div w class card-title
+        let cardTitle = document.createElement("div");
+        cardTitle.setAttribute("class", "card-title");
+        //create card-text div w class card-text
+        let cardText = document.createElement("div");
+        cardText.setAttribute("class", "card-text text-white");
+        cardText.innerHTML = "Temp: " + data.daily[i].temp.day + "°F <br />" + "Wind: " + data.daily[i].wind_speed + " MPH <br />" + "Humidity: " + data.daily[i].humidity;
+       
+        //append all elements
+        colDiv.appendChild(cardDiv);
+        cardDiv.appendChild(cardTitle);
+        cardTitle.appendChild(cardText);
+        futureDataEl.appendChild(colDiv);
+        //remove display none class 
+        futureWeatherEl.removeAttribute("class", "d-none");
+    }
+}
+
+
+
 
 userFormEl.addEventListener("submit", formSubmitHandler);

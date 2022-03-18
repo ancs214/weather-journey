@@ -1,0 +1,21 @@
+header {
+    background-image: linear-gradient(to right, rgb(36, 119, 187) , rgb(36, 14, 117));
+    color: white;
+    padding: 7px;
+}
+
+.container {
+    padding: 15px;
+
+}
+
+.conditions {
+   line-height: 30px;
+   padding: 10px;
+}
+
+button {
+    margin-top: 10px;
+
+}
+
