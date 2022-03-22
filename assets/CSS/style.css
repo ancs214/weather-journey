@@ -1,3 +1,5 @@
+
+
 header {
     background-image: linear-gradient(to right, rgb(36, 119, 187) , rgb(36, 14, 117));
     color: white;
@@ -19,3 +21,16 @@ button {
 
 }
 
+.bg-gray {
+    background-color: rgb(69, 71, 99);
+}
+
+.uv-width {
+    max-width: fit-content;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+.bg-orange {
+    background-color: orange;
+}

@@ -5,12 +5,14 @@ let weatherSectionEl = document.querySelector("#weather-section");
 let cityHeaderEl = document.querySelector("#city-header");
 let futureWeatherEl = document.querySelector("#future-weather");
 let futureDataEl = document.querySelector("#future-data");
+let resultsEl = document.querySelector("#results");
 
 
 
 //on form submission, run getStates
 let formSubmitHandler = function (event) {
     event.preventDefault();
+    resetStateBtns();
     //obtain text for city user searched for; trim any space around
     let searchEntry = cityInput.value.trim();
     if (searchEntry) {
@@ -22,6 +24,15 @@ let formSubmitHandler = function (event) {
         alert("Please enter a city.");
     }
 }
+
+//if there are previous state buttons, clear results
+let resetStateBtns = function() {
+    while (stateEl.firstChild) {
+        stateEl.removeChild(stateEl.firstChild);
+        
+    }
+}
+
 
 //fetch resulted states from users search
 let getStates = function (searchEntry) {
@@ -60,11 +71,13 @@ let displayStates = function (data) {
         stateEl.appendChild(stateBtn);
         //on state button click, run getCurrentWeather, plugging in lat and long coordinates
         stateBtn.onclick = function () {
+
             let city = data[i].name;
             let state = data[i].state;
             let location = city + ", " + state;
             //city, state saved to local storage
             localStorage.setItem("location", location);
+            // saveCities(location);
             //set var for lat / long data
             let lat = data[i].lat;
             let lon = data[i].lon
@@ -75,6 +88,25 @@ let displayStates = function (data) {
 }
 
 
+// let saveCities = function(location) {
+//     localStorage.setItem("location", location);
+// }
+
+
+
+// let loadCities = function (location) {
+//     let storedCities = localStorage.getItem("location").toString();
+//     if (!storedCities) {
+//         storedCities = {
+//             location: [],
+//         };
+//     }
+// }
+
+// //load cities from local storage
+// loadCities();
+
+
 
 //lat and long passed into getCurrentWeather func
 let getCurrentWeather = function (lat, lon) {
@@ -83,7 +115,7 @@ let getCurrentWeather = function (lat, lon) {
             if (response.ok) {
                 response.json()
                     .then(function (data) {
-                        //pass data to displayCurrentWeather function
+                        //pass data to weather functions
                         displayCurrentWeather(data);
                         displayFutureWeather(data);
                     })
@@ -92,6 +124,7 @@ let getCurrentWeather = function (lat, lon) {
             }
         })
 };
+
 
 
 //display current weather conditions
@@ -103,12 +136,30 @@ let displayCurrentWeather = function(data) {
     //create container for current conditions
     let currentConditions = document.createElement("div");
     //assign data to innerHTML
-    currentConditions.innerHTML = "Temp: " + dataArr[0] + "°F <br />" + "Wind: " + dataArr[1] + " MPH <br />" + "Humidity: " + dataArr[2] + "% <br />" + "UV Index: " + dataArr[3];
+    currentConditions.innerHTML = "Temp: " + dataArr[0] + "°F <br />" + "Wind: " + dataArr[1] + " MPH <br />" + "Humidity: " + dataArr[2] + "% <br />";
+    let addUV = document.createElement("div");
+    addUV.innerHTML = "UV Index: " + dataArr[3];
+    currentConditions.appendChild(addUV);
     //assign bootstrap class to weather section
     weatherSectionEl.setAttribute("class", "border border-dark conditions");
     //append to page
     weatherSectionEl.appendChild(currentConditions);
+
+    let uvBGcolor = function () {
+        let uvIndex = dataArr[3];
+        if (uvIndex <= 2) {
+            addUV.setAttribute("class", "bg-success uv-width");
+        } if (uvIndex > 2 && uvIndex <= 5) {
+            addUV.setAttribute("class", "bg-warning uv-width");
+        } if (uvIndex > 5 && uvIndex <= 9) {
+            addUV.setAttribute("class", "bg-orange uv-width");
+        } if (uvIndex > 9) {
+            addUV.setAttribute("class", "bg-danger uv-width");
+        }
+    }
+    uvBGcolor();
 }
+
 
 
 //display 5 day weather forecast
@@ -116,15 +167,17 @@ let displayFutureWeather = function(data) {
     let data5days = data.daily;
    
     for (let i=0; i<data5days.length-2; i++){
+        
         //create div w class col
         let colDiv = document.createElement("div");
         colDiv.setAttribute("class", "col");
         //create card div w class card        
         let cardDiv = document.createElement("div");
-        cardDiv.setAttribute("class", "card bg-dark");
+        cardDiv.setAttribute("class", "card bg-gray");
         //create cardTitle div w class card-title
         let cardTitle = document.createElement("div");
-        cardTitle.setAttribute("class", "card-title");
+        cardTitle.setAttribute("class", "card-title text-white");
+        cardTitle.innerHTML = moment().add(i+1, 'day').format("M/DD/YY");
         //create card-text div w class card-text
         let cardText = document.createElement("div");
         cardText.setAttribute("class", "card-text text-white");
@@ -139,7 +192,6 @@ let displayFutureWeather = function(data) {
         futureWeatherEl.removeAttribute("class", "d-none");
     }
 }
-
 
 
 
