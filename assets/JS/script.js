@@ -9,20 +9,16 @@ let resultsEl = document.querySelector("#results");
 let pastSearchesEl = document.querySelector("#search-hx");
 
 let searchHistory = [];
-let persistentHistory = JSON.parse(localStorage.getItem("locationEl"));
 
+//THIS FUNCTION NO LONGER WORKING
 //on window load, get items from local storage
-window.onload = function(locationEl, searchHistory) {
+window.onload = function() {
     //if items exist in local storage, use json parse to return in array form
     searchHistory = JSON.parse(localStorage.getItem("locationEl"));
-
     console.log(searchHistory);
     if (searchHistory===null) {
         console.log("no search history");
     } else {
-        // searchHistory = JSON.parse(localStorage.getItem(locationEl));
-        // console.log(locationEl);
-        //for each locationEl, create a element
         searchHistory.forEach(element => {
     
             let pastCities = document.createElement("button");
@@ -67,6 +63,7 @@ let historySearch = function(event) {
 let formSubmitHandler = function (event) {
     event.preventDefault();
     resetStateBtns();
+   
     //obtain text for city user searched for; trim any space around
     let searchEntry = cityInput.value.trim();
     if (searchEntry) {
@@ -81,6 +78,7 @@ let formSubmitHandler = function (event) {
 
 //if there are previous state buttons, clear results
 let resetStateBtns = function() {
+
     while (stateEl.firstChild) {
         stateEl.removeChild(stateEl.firstChild);
         
@@ -89,8 +87,8 @@ let resetStateBtns = function() {
 
 
 //fetch resulted states from users search
-let getStates = function (searchEntry) {
-    fetch("http://api.openweathermap.org/geo/1.0/direct?q=" + searchEntry + "&limit=10&appid=314928b8d3e16dd41afeacded00b5a17")
+let getStates = function (cityName) {
+    fetch("http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=10&appid=314928b8d3e16dd41afeacded00b5a17")
         .then(function (response) {
             if (response.ok) {
                 response.json()
@@ -128,10 +126,13 @@ let displayStates = function (data) {
             let city = data[i].name;
             let state = data[i].state;
             let locationEl = city + ", " + state;
-            console.log(locationEl);
-            // //city, state pushed to array and saved to local storage
-            searchHistory.push(locationEl);
-            localStorage.setItem("locationEl", JSON.stringify(searchHistory));
+            
+            //TRIED TO PUSH locationEl TO EMPTY ARRAY, BUT IS BREAKING MY CODE!!
+
+            // searchHistory.push(locationEl);
+            // localStorage.setItem("locationEl", JSON.stringify(searchHistory));
+
+            //FOR SOME REASON searchHistory RETURNS "null"
             console.log(searchHistory);
     
             //set var for lat / long data
@@ -236,4 +237,4 @@ let displayFutureWeather = function(data) {
 
 
 userFormEl.addEventListener("submit", formSubmitHandler);
-pastSearchesEl.addEventListener("click", historySearch)
+pastSearchesEl.addEventListener("click", historySearch);
