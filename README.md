@@ -1,13 +1,10 @@
-# weather-journey
+<img width="1072" alt="Screen Shot 2022-04-02 at 3 57 38 PM" src="https://user-images.githubusercontent.com/90393796/161399311-82a38979-8b71-4bde-808b-c1ba24409fbb.png">
 
-GIVEN a weather dashboard with form inputs
-WHEN I search for a city
-THEN I am presented with current and future conditions for that city and that city is added to the search history
-WHEN I view current weather conditions for that city
-THEN I am presented with the city name, the date, an icon representation of weather conditions, the temperature, the humidity, the wind speed, and the UV index
-WHEN I view the UV index
-THEN I am presented with a color that indicates whether the conditions are favorable, moderate, or severe
-WHEN I view future weather conditions for that city
-THEN I am presented with a 5-day forecast that displays the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
-WHEN I click on a city in the search history
-THEN I am again presented with current and future conditions for that city
+
+#Weather Journey 
+
+##Website allows users to search for cities and obtain current and future weather data
+
+###Created with HTML, CSS, JS
+
+###Made by Ashley-Noel Swarn
