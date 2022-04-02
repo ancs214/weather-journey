@@ -6,8 +6,62 @@ let cityHeaderEl = document.querySelector("#city-header");
 let futureWeatherEl = document.querySelector("#future-weather");
 let futureDataEl = document.querySelector("#future-data");
 let resultsEl = document.querySelector("#results");
+let pastSearchesEl = document.querySelector("#search-hx");
 
+let searchHistory = [];
+let persistentHistory = JSON.parse(localStorage.getItem("locationEl"));
 
+//on window load, get items from local storage
+window.onload = function(locationEl, searchHistory) {
+    //if items exist in local storage, use json parse to return in array form
+    searchHistory = JSON.parse(localStorage.getItem("locationEl"));
+
+    console.log(searchHistory);
+    if (searchHistory===null) {
+        console.log("no search history");
+    } else {
+        // searchHistory = JSON.parse(localStorage.getItem(locationEl));
+        // console.log(locationEl);
+        //for each locationEl, create a element
+        searchHistory.forEach(element => {
+    
+            let pastCities = document.createElement("button");
+            pastCities.innerHTML = element;
+            pastCities.setAttribute("class", "btn btn-secondary btn-lg btn-block m-2")
+            pastSearchesEl.appendChild(pastCities); 
+        })
+    } 
+}
+
+//function to load cities searched on btn click
+let historySearch = function(event) {
+    // let searchEntry = inner text of btn clicked
+    let hxSearchEntry = event.target.innerHTML;
+    cityHeaderEl.innerHTML = hxSearchEntry + "&nbsp" + moment().format("(MM/DD/YY)")
+    //split method to separate city and state into an array
+    let hxSearchEntryArr = hxSearchEntry.split(' ');
+    let city = hxSearchEntryArr[0];
+    let state = hxSearchEntryArr[1];
+    //pass in city to fetch request
+    fetch("http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=10&appid=314928b8d3e16dd41afeacded00b5a17")
+        .then(function (response) {
+            if (response.ok) {
+                response.json()
+                    .then(function (data) {
+                        //iterate over data; if state equals, state on btn clicked, save lat and lon and pass into getCurrentWeather function
+                        for (let i = 0; i < data.length; i++) {
+                            if (data[i].state == state) {
+                                let lat = data[i].lat;
+                                let lon = data[i].lon;
+                                getCurrentWeather(lat, lon);
+                            }
+                        } 
+                    })
+            } else {
+                alert("There was a problem with your request!");
+            }
+        })
+}
 
 //on form submission, run getStates
 let formSubmitHandler = function (event) {
@@ -43,7 +97,6 @@ let getStates = function (searchEntry) {
                     .then(function (data) {
                         //pass state names data and create buttons for each
                         displayStates(data);
-                        // console.log(data[0].lat);
                     })
             } else {
                 alert("There was a problem with your request!");
@@ -74,37 +127,26 @@ let displayStates = function (data) {
 
             let city = data[i].name;
             let state = data[i].state;
-            let location = city + ", " + state;
-            //city, state saved to local storage
-            localStorage.setItem("location", location);
-            // saveCities(location);
+            let locationEl = city + ", " + state;
+            console.log(locationEl);
+            // //city, state pushed to array and saved to local storage
+            searchHistory.push(locationEl);
+            localStorage.setItem("locationEl", JSON.stringify(searchHistory));
+            console.log(searchHistory);
+    
             //set var for lat / long data
             let lat = data[i].lat;
             let lon = data[i].lon
             //plug in lat / long to getCurrentWeather function
             getCurrentWeather(lat, lon);
+
+            //set locationEl as current weather section header with current date
+            cityHeaderEl.innerHTML = locationEl + "&nbsp" + moment().format("(MM/DD/YY)")
+
         }
     }
 }
 
-
-// let saveCities = function(location) {
-//     localStorage.setItem("location", location);
-// }
-
-
-
-// let loadCities = function (location) {
-//     let storedCities = localStorage.getItem("location").toString();
-//     if (!storedCities) {
-//         storedCities = {
-//             location: [],
-//         };
-//     }
-// }
-
-// //load cities from local storage
-// loadCities();
 
 
 
@@ -130,9 +172,7 @@ let getCurrentWeather = function (lat, lon) {
 //display current weather conditions
 let displayCurrentWeather = function(data) {
     let dataArr = [data.current.temp, data.current.wind_speed, data.current.humidity, data.current.uvi];
-    //get city,state from local storage and make header
-    let cityState = localStorage.getItem("location").toString();
-    cityHeaderEl.innerHTML = cityState + "&nbsp" + moment().format("(MM/DD/YY)");
+   
     //create container for current conditions
     let currentConditions = document.createElement("div");
     //assign data to innerHTML
@@ -196,3 +236,4 @@ let displayFutureWeather = function(data) {
 
 
 userFormEl.addEventListener("submit", formSubmitHandler);
+pastSearchesEl.addEventListener("click", historySearch)
